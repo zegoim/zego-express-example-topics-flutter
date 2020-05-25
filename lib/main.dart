@@ -12,7 +12,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ZegoExpressExample',
       theme: ThemeData(
-
         primarySwatch: Colors.blue,
       ),
       home: HomePage(title: 'ZegoExpressExample'),
@@ -31,43 +30,36 @@ class HomePage extends StatelessWidget {
     print(ZegoConfig.instance); // Load config instance
 
     return Scaffold(
-        appBar: AppBar(
-
-          title: Text(title),
-        ),
-        body: SafeArea(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                  ),
-                  CupertinoButton(
-                      color: Color(0xff0e88eb),
-                      child: Text('Publish Stream'),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-                          return InitPage(true);
-                        }));
-                      }
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                  ),
-                  CupertinoButton(
-                      color: Color(0xff0e88eb),
-                      child: Text('   Play Stream   '),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-                          return InitPage(false);
-                        }));
-                      }
-                  ),
-                ],
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: SafeArea(
+        child: ListView(
+          children: ListTile.divideTiles(
+            context: context,
+            tiles: [
+              ListTile(
+                title: Text('Publish Stream'),
+                trailing: Icon(Icons.keyboard_arrow_right),
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+                    return InitPage(true);
+                  }));
+                },
               ),
-            )
+              ListTile(
+                title: Text('Play Stream'),
+                trailing: Icon(Icons.keyboard_arrow_right),
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+                    return InitPage(true);
+                  }));
+                },
+              )
+            ]
+          ).toList(),
         )
+      )
     );
   }
 }

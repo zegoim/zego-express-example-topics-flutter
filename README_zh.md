@@ -2,7 +2,7 @@
 
 [English](README.md) | [中文](README_zh.md)
 
-演示如何使用 [zego_express_engine]((https://pub.dev/packages/zego_express_engine)) 的 Demo
+演示如何使用 [zego_express_engine](https://pub.dev/packages/zego_express_engine) 的 Demo
 
 > Ref: zego_express_engine
 >
