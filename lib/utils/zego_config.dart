@@ -8,6 +8,9 @@ import 'package:zego_express_engine/zego_express_engine.dart' show ZegoScenario;
 class ZegoConfig {
 
   static final ZegoConfig instance = ZegoConfig._internal();
+  ZegoConfig._internal();
+
+  // ----- Persistence params -----
 
   int appID;
   String appSign;
@@ -22,34 +25,35 @@ class ZegoConfig {
   String roomID;
   String streamID;
 
+
+  // ----- Short-term params -----
+
   bool isPreviewMirror;
   bool isPublishMirror;
 
   bool enableHardwareEncoder;
 
-  ZegoConfig._internal() {
+  // Must invoke `init()` when app launched
+  Future<void> init() async {
+    SharedPreferences config = await SharedPreferences.getInstance();
 
-    SharedPreferences.getInstance().then((config) {
+    this.appID = config.getInt('appID') ?? 0;
+    this.appSign = config.getString('appSign') ?? '';
+    this.isTestEnv = config.getBool('isTestEnv') ?? true;
+    this.scenario = config.getInt('scenario') ?? ZegoScenario.General.index;
 
-      this.appID = config.getInt('appID') ?? 0;
-      this.appSign = config.getString('appSign') ?? '';
-      this.isTestEnv = config.getBool('isTestEnv') ?? true;
-      this.scenario = config.getInt('scenario') ?? ZegoScenario.General.index;
+    this.enablePlatformView = config.getBool('enablePlatformView') ?? false;
 
-      this.enablePlatformView = config.getBool('enablePlatformView') ?? false;
+    this.userID = config.getString('userID') ?? '${Platform.operatingSystem}-${new Random().nextInt(9999999).toString()}';
+    this.userName = config.getString('userName') ?? 'user-$userID';
 
-      this.userID = config.getString('userID') ?? '${Platform.operatingSystem}-${new Random().nextInt(9999999).toString()}';
-      this.userName = config.getString('userName') ?? 'user-$userID';
+    this.roomID = config.getString('roomID') ?? '';
+    this.streamID = config.getString('streamID') ?? '';
 
-      this.roomID = config.getString('roomID') ?? '';
-      this.streamID = config.getString('streamID') ?? '';
+    this.isPreviewMirror = true;
+    this.isPublishMirror = false;
 
-      this.isPreviewMirror = true;
-      this.isPublishMirror = false;
-
-      this.enableHardwareEncoder = false;
-
-    });
+    this.enableHardwareEncoder = false;
   }
 
   Future<void> saveConfig() async {

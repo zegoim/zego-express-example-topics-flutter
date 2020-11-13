@@ -5,13 +5,13 @@ import 'package:zego_express_engine/zego_express_engine.dart';
 
 import 'package:zego_express_example_topics_flutter/utils/zego_config.dart';
 
-class PublishSettingsPage extends StatefulWidget {
+class PublishStreamSettingsPage extends StatefulWidget {
 
   @override
-  _PublishSettingsPageState createState() => new _PublishSettingsPageState();
+  _PublishStreamSettingsPageState createState() => new _PublishStreamSettingsPageState();
 }
 
-class _PublishSettingsPageState extends State<PublishSettingsPage> {
+class _PublishStreamSettingsPageState extends State<PublishStreamSettingsPage> {
 
   bool _isPreviewMirror;
   bool _isPublishMirror;

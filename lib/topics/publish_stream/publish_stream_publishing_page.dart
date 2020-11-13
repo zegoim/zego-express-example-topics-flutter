@@ -4,20 +4,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 
 import 'package:zego_express_example_topics_flutter/utils/zego_config.dart';
-import 'package:zego_express_example_topics_flutter/pages/publish_settings_page.dart';
+import 'package:zego_express_example_topics_flutter/topics/publish_stream/publish_stream_settings_page.dart';
 
-class PublishStreamPage extends StatefulWidget {
+class PublishStreamPublishingPage extends StatefulWidget {
 
   final int screenWidthPx;
   final int screenHeightPx;
 
-  PublishStreamPage(this.screenWidthPx, this.screenHeightPx);
+  PublishStreamPublishingPage(this.screenWidthPx, this.screenHeightPx);
 
   @override
-  _PublishStreamPageState createState() => new _PublishStreamPageState();
+  _PublishStreamPublishingPageState createState() => new _PublishStreamPublishingPageState();
 }
 
-class _PublishStreamPageState extends State<PublishStreamPage> {
+class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPage> {
 
   String _title = '';
   bool _isPublishing = false;
@@ -448,7 +448,7 @@ class _PublishStreamPageState extends State<PublishStreamPage> {
 
   void onSettingsButtonClicked() {
     Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-      return PublishSettingsPage();
+      return PublishStreamSettingsPage();
     },fullscreenDialog: true));
   }
 
