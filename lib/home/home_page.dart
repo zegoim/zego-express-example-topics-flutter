@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:zego_express_example_topics_flutter/home/global_setting_page.dart';
 import 'package:zego_express_example_topics_flutter/topics/play_stream/play_stream_login_page.dart';
 import 'package:zego_express_example_topics_flutter/topics/publish_stream/publish_stream_login_page.dart';
+import 'package:zego_express_example_topics_flutter/topics/video_talk/video_talk_page.dart';
 
 import 'package:zego_express_example_topics_flutter/utils/zego_config.dart';
 import 'package:zego_express_example_topics_flutter/utils/zego_utils.dart';
@@ -53,6 +54,7 @@ class _HomePageState extends State<HomePage> {
             tiles: [
               TopicWidget('Publish Stream', PublishStreamLoginPage(), context),
               TopicWidget('Play Stream', PlayStreamLoginPage(), context),
+              TopicWidget('VideoTalk', VideoTalkPage(), context),
             ]
           ).toList(),
         )
