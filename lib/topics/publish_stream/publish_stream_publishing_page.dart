@@ -19,7 +19,7 @@ class PublishStreamPublishingPage extends StatefulWidget {
 
 class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPage> {
 
-  String _title = '';
+  String _title = 'PublishStream';
   bool _isPublishing = false;
 
   int _previewViewID = -1;
@@ -44,8 +44,6 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
   @override
   void initState() {
     super.initState();
-
-    _title = 'Step3 StartPublishing';
 
     if (ZegoConfig.instance.streamID.isNotEmpty) {
       _controller.text = ZegoConfig.instance.streamID;
@@ -150,6 +148,7 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
 
     // Set the preview canvas
     _previewCanvas =  ZegoCanvas.view(viewID);
+    _previewCanvas.viewMode = ZegoViewMode.AspectFit;
 
     // Start preview
     ZegoExpressEngine.instance.startPreview(canvas: _previewCanvas);

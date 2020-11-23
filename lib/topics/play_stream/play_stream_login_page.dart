@@ -34,13 +34,24 @@ class _PlayStreamLoginPageState extends State<PlayStreamLoginPage> {
     ZegoExpressEngine.destroyEngine();
   }
 
-  void _loginRoom() {
+  // Step1: Create ZegoExpressEngine
+  Future<void> _createEngine() async {
+    int appID = ZegoConfig.instance.appID;
+    String appSign = ZegoConfig.instance.appSign;
+    bool isTestEnv = ZegoConfig.instance.isTestEnv;
+    ZegoScenario scenario = ZegoConfig.instance.scenario;
+    bool enablePlatformView = ZegoConfig.instance.enablePlatformView;
+
+    await ZegoExpressEngine.createEngine(appID, appSign, isTestEnv, scenario, enablePlatformView: enablePlatformView);
+  }
+
+  // Step2 LoginRoom
+  Future<void>  _loginRoom() async {
     String roomID = _controller.text.trim();
 
     ZegoUser user = ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName);
 
-    // Step2 LoginRoom
-    ZegoExpressEngine.instance.loginRoom(roomID, user);
+    await ZegoExpressEngine.instance.loginRoom(roomID, user);
 
     ZegoConfig.instance.roomID = roomID;
     ZegoConfig.instance.saveConfig();
@@ -60,7 +71,7 @@ class _PlayStreamLoginPageState extends State<PlayStreamLoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Step2 LoginRoom'),
+        title: Text('PlayStream'),
       ),
       body: GestureDetector(
 
@@ -103,11 +114,12 @@ class _PlayStreamLoginPageState extends State<PlayStreamLoginPage> {
                 padding: const EdgeInsets.only(bottom: 10.0),
               ),
               Text('RoomID represents the identification of a room, it needs to ensure that the RoomID is globally unique, and no longer than 255 bytes',
+                maxLines: 2,
                 style: TextStyle(
                     fontSize: 12.0,
                     color: Colors.black45
                 ),
-                maxLines: 2,
+                // maxLines: 2,
                 softWrap: true,
               ),
               Padding(
@@ -127,7 +139,10 @@ class _PlayStreamLoginPageState extends State<PlayStreamLoginPage> {
                         color: Colors.white
                     ),
                   ),
-                  onPressed: _loginRoom,
+                  onPressed: () async {
+                    await _createEngine();
+                    await _loginRoom();
+                  },
                 ),
               )
             ],

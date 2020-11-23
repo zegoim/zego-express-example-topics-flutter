@@ -15,7 +15,7 @@ class ZegoConfig {
   int appID;
   String appSign;
   bool isTestEnv;
-  int scenario;
+  ZegoScenario scenario;
 
   bool enablePlatformView;
 
@@ -40,7 +40,7 @@ class ZegoConfig {
     this.appID = config.getInt('appID') ?? 0;
     this.appSign = config.getString('appSign') ?? '';
     this.isTestEnv = config.getBool('isTestEnv') ?? true;
-    this.scenario = config.getInt('scenario') ?? ZegoScenario.General.index;
+    this.scenario = config.getInt('scenario') != null ? ZegoScenario.values[config.getInt('scenario')] : ZegoScenario.General;
 
     this.enablePlatformView = config.getBool('enablePlatformView') ?? false;
 
@@ -63,7 +63,7 @@ class ZegoConfig {
     config.setInt('appID', this.appID);
     config.setString('appSign', this.appSign);
     config.setBool('isTestEnv', this.isTestEnv);
-    config.setInt('scenario', this.scenario);
+    config.setInt('scenario', this.scenario.index);
 
     config.setBool('enablePlatformView', this.enablePlatformView);
 

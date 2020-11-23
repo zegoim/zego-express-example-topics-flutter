@@ -35,28 +35,25 @@ class _PublishStreamLoginPageState extends State<PublishStreamLoginPage> {
     ZegoExpressEngine.destroyEngine();
   }
 
-  void onLoginRoomButtonPressed() async {
-    // Publishing stream requires permission
+  // Step1: Create ZegoExpressEngine
+  Future<void> _createEngine() async {
+    int appID = ZegoConfig.instance.appID;
+    String appSign = ZegoConfig.instance.appSign;
+    bool isTestEnv = ZegoConfig.instance.isTestEnv;
+    ZegoScenario scenario = ZegoConfig.instance.scenario;
+    bool enablePlatformView = ZegoConfig.instance.enablePlatformView;
 
-    // Check the permissions before logging into the room
-    bool isPermissionGranted = await requestPermission();
-
-    if (!isPermissionGranted) {
-      // The authorization is not allowed, the pop-up window prompts the user to open the permission
-      showPermissionTips();
-    } else {
-      // Authorization is complete, allowing login room
-      _loginRoom();
-    }
+    await ZegoExpressEngine.createEngine(appID, appSign, isTestEnv, scenario, enablePlatformView: enablePlatformView);
   }
 
-  void _loginRoom() {
+  // Step2 LoginRoom
+  Future<void> _loginRoom() async {
     String roomID = _controller.text.trim();
 
     ZegoUser user = ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName);
 
     // Step2 LoginRoom
-    ZegoExpressEngine.instance.loginRoom(roomID, user);
+    await ZegoExpressEngine.instance.loginRoom(roomID, user);
 
     ZegoConfig.instance.roomID = roomID;
     ZegoConfig.instance.saveConfig();
@@ -69,12 +66,6 @@ class _PublishStreamLoginPageState extends State<PublishStreamLoginPage> {
       return PublishStreamPublishingPage(screenWidthPx, screenHeightPx);
     }));
 
-  }
-
-  Future<bool> requestPermission() async {
-    PermissionStatus microphoneStatus = await Permission.microphone.request();
-    PermissionStatus cameraStatus = await Permission.camera.request();
-    return microphoneStatus.isGranted && cameraStatus.isGranted;
   }
 
   void showPermissionTips() {
@@ -96,7 +87,7 @@ class _PublishStreamLoginPageState extends State<PublishStreamLoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Step2 LoginRoom'),
+        title: Text('PublishStream'),
       ),
       body: GestureDetector(
 
@@ -163,7 +154,10 @@ class _PublishStreamLoginPageState extends State<PublishStreamLoginPage> {
                         color: Colors.white
                     ),
                   ),
-                  onPressed: onLoginRoomButtonPressed,
+                  onPressed: () async {
+                    await _createEngine();
+                    await _loginRoom();
+                  },
                 ),
               )
             ],

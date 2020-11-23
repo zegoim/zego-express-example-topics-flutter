@@ -18,7 +18,7 @@ class PlayStreamPage extends StatefulWidget {
 
 class _PlayStreamPageState extends State<PlayStreamPage> {
 
-  String _title = '';
+  String _title = 'PlayStream';
   bool _isPlaying = false;
 
   int _playViewID = -1;
@@ -42,8 +42,6 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
   @override
   void initState() {
     super.initState();
-
-    _title = 'Step3 StartPlaying';
 
     if (ZegoConfig.instance.streamID.isNotEmpty) {
       _controller.text = ZegoConfig.instance.streamID;
@@ -343,7 +341,7 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
           ),
           Row(
             children: <Widget>[
-              Text('FPS(Render): ${_playDecodeFPS.toStringAsFixed(2)}',
+              Text('FPS(Render): ${_playRenderFPS.toStringAsFixed(2)}',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 9
