@@ -35,7 +35,7 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
   void initState() {
     super.initState();
 
-    setRoomEventCallback();
+    setZegoEventCallback();
 
     joinTalkRoom();
   }
@@ -43,6 +43,8 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
   @override
   void dispose() {
     exitTalkRoom();
+
+    clearZegoEventCallback();
 
     super.dispose();
   }
@@ -133,7 +135,7 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
 
   // MARK: - Zego Event
 
-  void setRoomEventCallback() {
+  void setZegoEventCallback() {
 
     ZegoExpressEngine.onRoomStateUpdate = (String roomID, ZegoRoomState state, int errorCode, Map<String, dynamic> extendedData) {
       print("🚩 🚪 Room state update, state: $state, errorCode: $errorCode, roomID: $roomID");
@@ -166,6 +168,11 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
         }
       }
     };
+  }
+
+  void clearZegoEventCallback() {
+    ZegoExpressEngine.onRoomStateUpdate = null;
+    ZegoExpressEngine.onRoomStreamUpdate = null;
   }
 
   // MARK: Widget
