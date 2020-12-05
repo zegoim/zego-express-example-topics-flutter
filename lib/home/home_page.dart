@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:zego_express_example_topics_flutter/home/global_setting_page.dart';
+import 'package:zego_express_example_topics_flutter/topics/quick_start/quick_start_page.dart';
 import 'package:zego_express_example_topics_flutter/topics/play_stream/play_stream_login_page.dart';
 import 'package:zego_express_example_topics_flutter/topics/publish_stream/publish_stream_login_page.dart';
 import 'package:zego_express_example_topics_flutter/topics/video_talk/video_talk_page.dart';
@@ -52,6 +53,7 @@ class _HomePageState extends State<HomePage> {
           children: ListTile.divideTiles(
             context: context,
             tiles: [
+              TopicWidget('Quick Start', QuickStartPage(), context),
               TopicWidget('Publish Stream', PublishStreamLoginPage(), context),
               TopicWidget('Play Stream', PlayStreamLoginPage(), context),
               TopicWidget('VideoTalk', VideoTalkPage(), context),
