@@ -311,14 +311,14 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
         Row(
           children: <Widget>[
             Radio(
-              value: 0,
+              value: 1,
               groupValue: this._isTestEnv ? 1 : 0,
               onChanged: onEnvironmentChanged,
             ),
             Text('Test'),
             SizedBox(width: 50),
             Radio(
-              value: 1,
+              value: 0,
               groupValue: this._isTestEnv ? 1 : 0,
               onChanged: onEnvironmentChanged,
             ),
