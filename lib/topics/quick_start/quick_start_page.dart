@@ -24,6 +24,9 @@ class _QuickStartPageState extends State<QuickStartPage> {
 
   Widget _previewViewWidget;
   Widget _playViewWidget;
+  GlobalKey _playViewContainerKey = GlobalKey();
+  GlobalKey _previewViewContainerKey = GlobalKey();
+  static const double viewRatio = 3.0/4.0;
 
   bool _isEngineActive = false;
   ZegoRoomState _roomState = ZegoRoomState.Disconnected;
@@ -62,7 +65,7 @@ class _QuickStartPageState extends State<QuickStartPage> {
   // MARK: - Step 1: CreateEngine
 
   void createEngine() {
-    ZegoExpressEngine.createEngine(ZegoConfig.instance.appID, ZegoConfig.instance.appSign, ZegoConfig.instance.isTestEnv, ZegoConfig.instance.scenario);
+    ZegoExpressEngine.createEngine(ZegoConfig.instance.appID, ZegoConfig.instance.appSign, ZegoConfig.instance.isTestEnv, ZegoConfig.instance.scenario, enablePlatformView: ZegoConfig.instance.enablePlatformView);
 
     // Notify View that engine state changed
     setState(() => _isEngineActive = true);
@@ -84,7 +87,7 @@ class _QuickStartPageState extends State<QuickStartPage> {
 
   // MARK: - Step 3: StartPublishingStream
 
-  void startPublishingStream(String streamID) {
+  void startPublishingStream(String streamID, {double width = 360, double height = 640}) {
 
     void _startPreview(int viewID) {
       ZegoCanvas canvas = ZegoCanvas.view(viewID);
@@ -99,13 +102,15 @@ class _QuickStartPageState extends State<QuickStartPage> {
 
     if (ZegoConfig.instance.enablePlatformView) {
       // Render with PlatformView
-      _previewViewWidget = ZegoExpressEngine.instance.createPlatformView((viewID) {
-        _startPreview(viewID);
-        _startPublishingStream(streamID);
+      setState(() {
+        _previewViewWidget = ZegoExpressEngine.instance.createPlatformView((viewID) {
+          _startPreview(viewID);
+          _startPublishingStream(streamID);
+        });
       });
     } else {
       // Render with TextureRenderer
-      ZegoExpressEngine.instance.createTextureRenderer(360, 640).then((viewID) {
+      ZegoExpressEngine.instance.createTextureRenderer(width.toInt(), height.toInt()).then((viewID) {
         setState(() => _previewViewWidget = Texture(textureId: viewID));
         _startPreview(viewID);
         _startPublishingStream(streamID);
@@ -115,7 +120,7 @@ class _QuickStartPageState extends State<QuickStartPage> {
 
   // MARK: - Step 4: StartPlayingStream
 
-  void startPlayingStream(String streamID) {
+  void startPlayingStream(String streamID, {double width = 360, double height = 640}) {
 
     void _startPlayingStream(int viewID, String streamID) {
       ZegoCanvas canvas = ZegoCanvas.view(viewID);
@@ -125,12 +130,14 @@ class _QuickStartPageState extends State<QuickStartPage> {
 
     if (ZegoConfig.instance.enablePlatformView) {
       // Render with PlatformView
-      _playViewWidget = ZegoExpressEngine.instance.createPlatformView((viewID) {
-        _startPlayingStream(viewID, streamID);
+      setState(() {
+        _playViewWidget = ZegoExpressEngine.instance.createPlatformView((viewID) {
+          _startPlayingStream(viewID, streamID);
+        });
       });
     } else {
       // Render with TextureRenderer
-      ZegoExpressEngine.instance.createTextureRenderer(360, 640).then((viewID) {
+      ZegoExpressEngine.instance.createTextureRenderer(width.toInt(), height.toInt()).then((viewID) {
         setState(() => _playViewWidget = Texture(textureId: viewID));
         _startPlayingStream(viewID, streamID);
       });
@@ -200,38 +207,12 @@ class _QuickStartPageState extends State<QuickStartPage> {
 
   Widget mainContent() {
     return SingleChildScrollView(child: Column(children: [
-      Container(
-        height: MediaQuery.of(context).size.width * 0.65,
-        child: GridView(
-          padding: const EdgeInsets.all(10.0),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 10.0,
-            crossAxisSpacing: 10.0,
-            childAspectRatio: 3.0/4.0,
-          ),
-          children: [
-            Stack(children: [
-              Container(
-                color: Colors.grey,
-                child: _previewViewWidget
-              ),
-              Text('Local Preview View')
-            ], alignment: AlignmentDirectional.topCenter),
-            Stack(children: [
-              Container(
-                color: Colors.grey,
-                child: _playViewWidget,
-              ),
-              Text('Remote Play View')
-            ], alignment: AlignmentDirectional.topCenter),
-          ],
-        ),
-      ),
       Divider(),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(children: [
+
+          viewsWidget(),
 
           stepOneCreateEngineWidget(),
 
@@ -251,6 +232,39 @@ class _QuickStartPageState extends State<QuickStartPage> {
         ]),
       ),
     ]));
+  }
+
+  Widget viewsWidget() {
+    return Container(
+      height: MediaQuery.of(context).size.width * 0.65,
+      child: GridView(
+        padding: const EdgeInsets.all(10.0),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 10.0,
+          crossAxisSpacing: 10.0,
+          childAspectRatio: viewRatio,
+        ),
+        children: [
+          Stack(children: [
+            Container(
+              color: Colors.grey,
+              child: _previewViewWidget,
+              key: _previewViewContainerKey,
+            ),
+            Text('Local Preview View', style: TextStyle(color: Colors.white))
+          ], alignment: AlignmentDirectional.topCenter),
+          Stack(children: [
+            Container(
+              color: Colors.grey,
+              child: _playViewWidget,
+              key: _playViewContainerKey,
+            ),
+            Text('Remote Play View', style: TextStyle(color: Colors.white))
+          ], alignment: AlignmentDirectional.topCenter),
+        ],
+      ),
+    );
   }
 
   Widget stepOneCreateEngineWidget() {
@@ -324,8 +338,9 @@ class _QuickStartPageState extends State<QuickStartPage> {
                 contentPadding: const EdgeInsets.all(10.0),
                 isDense: true,
                 labelText: 'Publish StreamID:',
-                hintText: 'Please enter publishing streamID',
-                hintStyle: TextStyle(color: Colors.grey),
+                labelStyle: TextStyle(color: Colors.black54, fontSize: 14.0),
+                hintText: 'Please enter streamID',
+                hintStyle: TextStyle(color: Colors.black26, fontSize: 10.0),
                 enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
                 focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xff0e88eb)))
               ),
@@ -339,7 +354,11 @@ class _QuickStartPageState extends State<QuickStartPage> {
                 _publisherState == ZegoPublisherState.Publishing ? '✅ StartPublishing' : 'StartPublishing',
                 style: TextStyle(fontSize: 14.0),
               ),
-              onPressed: () => startPublishingStream(_publishingStreamIDController.text.trim()),
+              onPressed: () {
+                double pixelRatio = MediaQuery.of(context).devicePixelRatio;
+                Size widgetSize = _previewViewContainerKey.currentContext.size;
+                startPublishingStream(_publishingStreamIDController.text.trim(), width: widgetSize.width * pixelRatio, height: widgetSize.height * pixelRatio);
+              },
               padding: EdgeInsets.all(10.0),
             ),
           )
@@ -364,8 +383,9 @@ class _QuickStartPageState extends State<QuickStartPage> {
                 contentPadding: const EdgeInsets.all(10.0),
                 isDense: true,
                 labelText: 'Play StreamID:',
-                hintText: 'Please enter playing streamID',
-                hintStyle: TextStyle(color: Colors.grey),
+                labelStyle: TextStyle(color: Colors.black54, fontSize: 14.0),
+                hintText: 'Please enter streamID',
+                hintStyle: TextStyle(color: Colors.black26, fontSize: 10.0),
                 enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
                 focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xff0e88eb)))
               ),
@@ -379,7 +399,11 @@ class _QuickStartPageState extends State<QuickStartPage> {
                 _playerState == ZegoPlayerState.Playing ? '✅ StartPlaying' : 'StartPlaying',
                 style: TextStyle(fontSize: 14.0),
               ),
-              onPressed: () => startPlayingStream(_playingStreamIDController.text.trim()),
+              onPressed: () {
+                double pixelRatio = MediaQuery.of(context).devicePixelRatio;
+                Size widgetSize = _playViewContainerKey.currentContext.size;
+                startPlayingStream(_playingStreamIDController.text.trim(), width: widgetSize.width * pixelRatio, height: widgetSize.height * pixelRatio);
+              },
               padding: EdgeInsets.all(10.0),
             ),
           )
