@@ -21,15 +21,33 @@ class VideoTalkPage extends StatefulWidget {
 
 class _VideoTalkPageState extends State<VideoTalkPage> {
 
-  final String roomID = 'VideoTalkRoom-1';
+  final String _roomID = 'VideoTalkRoom-1';
 
-  final String streamID = 's-${ZegoConfig.instance.userID}';
+  final String _streamID = 's-${ZegoConfig.instance.userID}';
 
-  ZegoRoomState roomState = ZegoRoomState.Disconnected;
+  ZegoRoomState _roomState = ZegoRoomState.Disconnected;
 
-  List<VideoTalkViewObject> viewObjectList = List();
+  List<VideoTalkViewObject> _viewObjectList = List();
 
   VideoTalkViewObject _localUserViewObject;
+
+  bool _isEnableCamera = true;
+  set isEnableCamera(bool value) {
+    setState(() => _isEnableCamera = value);
+    ZegoExpressEngine.instance.enableCamera(value);
+  }
+
+  bool _isEnableMic = true;
+  set isEnableMic(bool value) {
+    setState(() => _isEnableMic = value);
+    ZegoExpressEngine.instance.muteMicrophone(!value);
+  }
+
+  bool _isEnableSpeaker = true;
+  set isEnableSpeaker(bool value) {
+    setState(() => _isEnableSpeaker = value);
+    ZegoExpressEngine.instance.muteSpeaker(!value);
+  }
 
   @override
   void initState() {
@@ -58,8 +76,8 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
     await ZegoExpressEngine.createEngine(ZegoConfig.instance.appID, ZegoConfig.instance.appSign, ZegoConfig.instance.isTestEnv, ZegoScenario.Communication, enablePlatformView: true);
 
     // Login Room
-    print("🚪 Login room, roomID: $roomID");
-    await ZegoExpressEngine.instance.loginRoom(roomID, ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName));
+    print("🚪 Login room, roomID: $_roomID");
+    await ZegoExpressEngine.instance.loginRoom(_roomID, ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName));
 
     // Set the publish video configuration
     print("⚙️ Set video config: 540p preset");
@@ -67,18 +85,18 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
 
     // Start Preview
     print("🔌 Start preview");
-    _localUserViewObject = VideoTalkViewObject(true, this.streamID);
+    _localUserViewObject = VideoTalkViewObject(true, this._streamID);
     _localUserViewObject.init(() {
       ZegoExpressEngine.instance.startPreview(canvas: ZegoCanvas.view(_localUserViewObject.viewID));
     });
 
     setState(() {
-      viewObjectList.add(_localUserViewObject);
+      _viewObjectList.add(_localUserViewObject);
     });
 
     // Start Publish
-    print("📤 Start publishing stream, streamID: $streamID");
-    await ZegoExpressEngine.instance.startPublishingStream(streamID);
+    print("📤 Start publishing stream, streamID: $_streamID");
+    await ZegoExpressEngine.instance.startPublishingStream(_streamID);
   }
 
   Future<void> exitTalkRoom() async {
@@ -89,8 +107,8 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
     await ZegoExpressEngine.instance.stopPreview();
 
     // It is recommended to logout room when stopping the video call.
-    print("🚪 Logout room, roomID: $roomID");
-    await ZegoExpressEngine.instance.logoutRoom(roomID);
+    print("🚪 Logout room, roomID: $_roomID");
+    await ZegoExpressEngine.instance.logoutRoom(_roomID);
 
     // And you can destroy the engine when there is no need to call.
     print("🏳️ Destroy ZegoExpressEngine");
@@ -114,7 +132,7 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
     });
 
     setState(() {
-      viewObjectList.add(viewObject);
+      _viewObjectList.add(viewObject);
     });
   }
 
@@ -122,12 +140,12 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
     print('📥 Stop playing stream, streamID: $streamID');
     ZegoExpressEngine.instance.stopPlayingStream(streamID);
 
-    for (VideoTalkViewObject viewObject in viewObjectList) {
+    for (VideoTalkViewObject viewObject in _viewObjectList) {
       if (viewObject.streamID == streamID) {
         viewObject.uninit();
 
         setState(() {
-          viewObjectList.remove(viewObject);
+          _viewObjectList.remove(viewObject);
         });
       }
     }
@@ -140,14 +158,14 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
     ZegoExpressEngine.onRoomStateUpdate = (String roomID, ZegoRoomState state, int errorCode, Map<String, dynamic> extendedData) {
       print("🚩 🚪 Room state update, state: $state, errorCode: $errorCode, roomID: $roomID");
       setState(() {
-        roomState = state;
+        _roomState = state;
       });
     };
 
     ZegoExpressEngine.onRoomStreamUpdate = (String roomID, ZegoUpdateType updateType, List<ZegoStream> streamList, Map<String, dynamic> extendedData) {
       print("🚩 🌊 Room stream update, type: $updateType, streamsCount: ${streamList.length}, roomID: $roomID");
 
-      List allStreamIDList = viewObjectList.map((e) => e.streamID).toList();
+      List allStreamIDList = _viewObjectList.map((e) => e.streamID).toList();
 
       if (updateType == ZegoUpdateType.Add) {
 
@@ -204,26 +222,42 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
               crossAxisSpacing: 5.0,
               childAspectRatio: 3.0/4.0,
             ),
-            children: viewObjectList.map((e) => e.view).toList(),
+            children: _viewObjectList.map((e) => e.view).toList(),
             padding: EdgeInsets.all(5.0),
           ),
         ),
+        togglesWidget(),
       ],
     );
+  }
+
+  Widget togglesWidget() {
+    return Row(children: [
+      Column(children: [
+        Text('Camera'),
+        Switch(value: _isEnableCamera, onChanged: (value) => isEnableCamera = value),
+      ]),
+      Column(children: [
+        Text('Microphone'),
+        Switch(value: _isEnableMic, onChanged: (value) => isEnableMic = value),
+      ]),
+      Column(children: [
+        Text('Speaker'),
+        Switch(value: _isEnableSpeaker, onChanged: (value) => isEnableSpeaker = value),
+      ]),
+    ], mainAxisAlignment: MainAxisAlignment.spaceEvenly);
   }
 
   Widget roomInfoWidget() {
-    return Row(
-      children: [
-        Text("RoomID: $roomID"),
-        Spacer(),
-        Text(roomStateDesc()),
-      ],
-    );
+    return Row(children: [
+      Text("RoomID: $_roomID"),
+      Spacer(),
+      Text(roomStateDesc()),
+    ]);
   }
 
   String roomStateDesc() {
-    switch (roomState) {
+    switch (_roomState) {
       case ZegoRoomState.Disconnected:
         return "Disconnected 🔴";
         break;

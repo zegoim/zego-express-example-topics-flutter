@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 
 import 'package:zego_express_example_topics_flutter/utils/zego_config.dart';
+import 'package:zego_express_example_topics_flutter/utils/zego_utils.dart';
 
 class PlayStreamPage extends StatefulWidget {
 
@@ -27,12 +28,17 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
 
   int _playWidth = 0;
   int _playHeight = 0;
-  double _playRecvFPS = 0.0;
-  double _playDecodeFPS = 0.0;
-  double _playRenderFPS = 0.0;
+  double _playVideoFPS = 0.0;
+  double _playAudioFPS = 0.0;
   double _playVideoBitrate = 0.0;
   double _playAudioBitrate = 0.0;
+  double _totalRecvBytes = 0;
+  int _rtt = 0;
+  int _peerToPeerDelay = 0;
+  int _delay = 0;
+  int _avTimestampDiff = 0;
   bool _isHardwareDecode = false;
+  String _videoCodecID = '';
   String _networkQuality = '';
 
   bool _isUseSpeaker = true;
@@ -74,12 +80,17 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
     ZegoExpressEngine.onPlayerQualityUpdate = (String streamID, ZegoPlayStreamQuality quality) {
 
       setState(() {
-        _playRecvFPS = quality.videoRecvFPS;
-        _playDecodeFPS = quality.videoDecodeFPS;
-        _playRenderFPS = quality.videoRenderFPS;
+        _playVideoFPS = quality.videoRecvFPS;
+        _playAudioFPS = quality.audioRecvFPS;
         _playVideoBitrate = quality.videoKBPS;
         _playAudioBitrate = quality.audioKBPS;
+        _totalRecvBytes = quality.totalRecvBytes;
+        _rtt = quality.rtt;
+        _peerToPeerDelay = quality.peerToPeerDelay;
+        _delay = quality.delay;
+        _avTimestampDiff = quality.avTimestampDiff;
         _isHardwareDecode = quality.isHardwareDecode;
+        _videoCodecID = quality.videoCodecID.toString();
 
         switch (quality.level) {
           case ZegoStreamQualityLevel.Excellent:
@@ -194,14 +205,17 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
     });
   }
 
+  void onSnapshotButtonClicked() {
+    ZegoExpressEngine.instance.takePlayStreamSnapshot(_controller.text.trim()).then((result) {
+      print('[takePublishStreamSnapshot], errorCode: ${result.errorCode}, is null image?: ${result.image != null ? "false" : "true"}');
+      ZegoUtils.showImage(context, result.image);
+    });
+  }
 
-
-  Widget showPreviewToolPage() {
+  Widget prepareToolWidget() {
     return GestureDetector(
-
       behavior: HitTestBehavior.translucent,
       onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
-
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Column(
@@ -223,16 +237,8 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
               decoration: InputDecoration(
                   contentPadding: const EdgeInsets.only(left: 10.0, top: 12.0, bottom: 12.0),
                   hintText: 'Please enter streamID',
-                  enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.grey
-                      )
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Color(0xff0e88eb)
-                      )
-                  )
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xff0e88eb)))
               ),
             ),
             Padding(
@@ -240,10 +246,7 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
             ),
             Text(
               'StreamID must be globally unique and the length should not exceed 255 bytes',
-              style: TextStyle(
-                fontSize: 12.0,
-                color: Colors.black45
-              ),
+              style: TextStyle(fontSize: 12.0, color: Colors.black45),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 30.0),
@@ -257,11 +260,7 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
               width: 240.0,
               height: 60.0,
               child: CupertinoButton(
-                child: Text('Start Playing',
-                  style: TextStyle(
-                      color: Colors.white
-                  ),
-                ),
+                child: Text('Start Playing', style: TextStyle(color: Colors.white)),
                 onPressed: onPlayButtonPressed,
               ),
             )
@@ -271,7 +270,7 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
     );
   }
 
-  Widget showPublishingToolPage() {
+  Widget playingToolWidget() {
     return Container(
       padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: MediaQuery.of(context).padding.bottom + 20.0),
       child: Column(
@@ -282,130 +281,134 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
           Row(
             children: <Widget>[
               Text('RoomID: ${ZegoConfig.instance.roomID}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 9
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
               Text('StreamID: ${ZegoConfig.instance.streamID}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 9
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
               Text('Rendering with: ${ZegoConfig.instance.enablePlatformView ? 'PlatformView' : 'TextureRenderer'}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 9
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
               Text('Resolution: $_playWidth x $_playHeight',
-                style: TextStyle(
-                    color: Colors.white,
-                  fontSize: 9
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
-              Text('FPS(Recv): ${_playRecvFPS.toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 9
-                ),
+              Text('VideoRecvFPS: ${_playVideoFPS.toStringAsFixed(2)}',
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
-              Text('FPS(Decode): ${_playDecodeFPS.toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 9
-                ),
+              Text('AudioRecvFPS: ${_playAudioFPS.toStringAsFixed(2)}',
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
-              Text('FPS(Render): ${_playRenderFPS.toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 9
-                ),
+              Text('VideoBitrate: ${_playVideoBitrate.toStringAsFixed(2)} kb/s',
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
-              Text('Bitrate(Video): ${_playVideoBitrate.toStringAsFixed(2)} kb/s',
-                style: TextStyle(
-                    color: Colors.white,
-                  fontSize: 9
-                ),
+              Text('AudioBitrate: ${_playAudioBitrate.toStringAsFixed(2)} kb/s',
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
-              Text('Bitrate(Audio): ${_playAudioBitrate.toStringAsFixed(2)} kb/s',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 9
-                ),
+              Text('TotalRecvBytes: ${(_totalRecvBytes / 1024 / 1024).toStringAsFixed(2)} MB',
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
+          Row(
+            children: <Widget>[
+              Text('RTT: $_rtt ms',
+                style: TextStyle(color: Colors.white, fontSize: 9),
+              ),
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              Text('P2P Delay: $_peerToPeerDelay ms',
+                style: TextStyle(color: Colors.white, fontSize: 9),
+              ),
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              Text('Delay: $_delay ms',
+                style: TextStyle(color: Colors.white, fontSize: 9),
+              ),
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              Text('avTimestampDiff: $_avTimestampDiff ms',
+                style: TextStyle(color: Colors.white, fontSize: 9),
+              ),
+            ],
+          ),
+          Row(children: <Widget>[
+            Text('VideoCodecID: $_videoCodecID',
+              style: TextStyle(color: Colors.white, fontSize: 9),
+            ),
+          ]),
           Row(
             children: <Widget>[
               Text('HardwareDecode: ${_isHardwareDecode ? '✅' : '❎'}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 9
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
               Text('NetworkQuality: $_networkQuality',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 9
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
-          Expanded(
-            child: Padding(padding: const EdgeInsets.only(top: 10.0)),
-          ),
+          Expanded(child: SizedBox()),
           Row(
             children: <Widget>[
               CupertinoButton(
                 padding: const EdgeInsets.all(0.0),
                 pressedOpacity: 1.0,
-                borderRadius: BorderRadius.circular(
-                    0.0),
-                child: Image(
-                  width: 44.0,
-                  image: _isUseSpeaker
-                      ? AssetImage('assets/images/bottom_microphone_on_icon.png')
-                      : AssetImage('assets/images/bottom_microphone_off_icon.png'),
+                borderRadius: BorderRadius.circular(0.0),
+                child: Icon(
+                  _isUseSpeaker ? Icons.volume_up : Icons.volume_off,
+                  size: 44.0,
+                  color: Colors.white
                 ),
                 onPressed: onSpeakerStateChanged,
+              ),
+              SizedBox(width: 10.0),
+              CupertinoButton(
+                padding: const EdgeInsets.all(0.0),
+                pressedOpacity: 1.0,
+                borderRadius: BorderRadius.circular(0.0),
+                child: Icon(Icons.camera, size: 44.0, color: Colors.white),
+                onPressed: onSnapshotButtonClicked,
               ),
             ],
           ),
@@ -418,9 +421,7 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomPadding: false,
-        appBar: AppBar(
-          title: Text(_title),
-        ),
+        appBar: AppBar(title: Text(_title)),
         body: Stack(
           children: <Widget>[
             Container(
@@ -428,7 +429,7 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
               height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
               child: _playViewWidget,
             ),
-            _isPlaying ? showPublishingToolPage() : showPreviewToolPage(),
+            _isPlaying ? playingToolWidget() : prepareToolWidget(),
           ],
         )
     );

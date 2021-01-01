@@ -237,13 +237,7 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
           children: <Widget>[
             Text('AppID:'),
             GestureDetector(
-              child: Container(
-                width: 30.0,
-                height: 30.0,
-                child: Image(
-                    image: AssetImage('assets/images/settings_tips.png')
-                ),
-              ),
+              child: Icon(Icons.help_outline),
               onTap: () {
                 ZegoUtils.showAlert(context, 'AppID and AppSign are the unique identifiers of each customer, please apply on https://zego.im');
               },
@@ -271,13 +265,7 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
           children: <Widget>[
             Text('AppSign:'),
             GestureDetector(
-              child: Container(
-                width: 30.0,
-                height: 30.0,
-                child: Image(
-                    image: AssetImage('assets/images/settings_tips.png')
-                ),
-              ),
+              child: Icon(Icons.help_outline),
               onTap: () {
                 ZegoUtils.showAlert(context, 'AppID and AppSign are the unique identifiers of each customer, please apply on https://zego.im');
               },
