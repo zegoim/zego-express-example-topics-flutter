@@ -38,6 +38,10 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
   void initState() {
     super.initState();
 
+    ZegoExpressEngine.getVersion().then((value) {
+      setState(() => _version = value);
+    });
+
     if (ZegoConfig.instance.appID > 0) {
       _appIDEdController.text = ZegoConfig.instance.appID.toString();
     }
