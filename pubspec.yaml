@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  zego_express_engine: ^1.18.0
+  zego_express_engine: ^2.0.0
 
   shared_preferences: ^0.5.12
   permission_handler: ^5.0.0
