@@ -42,6 +42,7 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
   bool _isUseMic = true;
   bool _isUseFrontCamera = true;
   bool _isEnableCamera = true;
+  bool _isEnableWatermark = false;
 
   TextEditingController _controller = new TextEditingController();
 
@@ -219,18 +220,22 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
     ZegoExpressEngine.instance.muteMicrophone(!_isUseMic);
   }
 
-  void onSnapshotButtonClicked() async {
+  void onSnapshotButtonClicked() {
     ZegoExpressEngine.instance.takePublishStreamSnapshot().then((result) {
       print('[takePublishStreamSnapshot], errorCode: ${result.errorCode}, is null image?: ${result.image != null ? "false" : "true"}');
       ZegoUtils.showImage(context, result.image);
     });
   }
 
-  void onVideoMirroModeChanged(int mode) {
-    ZegoExpressEngine.instance.setVideoMirrorMode(ZegoVideoMirrorMode.values[mode]);
+  void onWatermarkButtonClicked() {
+    setState(() {
+      _isEnableWatermark = !_isEnableWatermark;
+    });
+    String imagePath = 'flutter-asset://' + 'resources/images/ZegoLogo.png';
+
+    ZegoWatermark watermark = ZegoWatermark(imagePath, Rect.fromLTRB(0, 0, 192, 36));
+    ZegoExpressEngine.instance.setPublishWatermark(watermark: _isEnableWatermark ? watermark : null, isPreviewVisible: true);
   }
-
-
 
   Widget prepareToolWidget() {
     return GestureDetector(
@@ -425,6 +430,18 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
                 borderRadius: BorderRadius.circular(0.0),
                 child: Icon(Icons.camera, size: 44.0, color: Colors.white),
                 onPressed: onSnapshotButtonClicked,
+              ),
+              SizedBox(width: 10.0),
+              CupertinoButton(
+                padding: const EdgeInsets.all(0.0),
+                pressedOpacity: 1.0,
+                borderRadius: BorderRadius.circular(0.0),
+                child: Icon(
+                  _isEnableWatermark ? Icons.branding_watermark_outlined : Icons.branding_watermark,
+                  size: 44.0,
+                  color: Colors.white
+                ),
+                onPressed: onWatermarkButtonClicked,
               ),
             ],
           ),
