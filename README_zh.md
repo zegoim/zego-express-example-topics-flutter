@@ -16,3 +16,9 @@
 ## 运行示例代码
 
 下载的示例代码中缺少 SDK 初始化必须的 AppID 和 AppSign，请参考 [获取 AppID 和 AppSign 指引](https://doc.zego.im/API/HideDoc/GetExpressAppIDGuide/GetAppIDGuideline.html) 获取 AppID 和 AppSign。
+
+## 相关示例
+
+**[https://github.com/zegoim/zego-express-example-screen-capture-flutter](https://github.com/zegoim/zego-express-example-screen-capture-flutter)**
+
+    📲 一个实现了 Android/iOS 屏幕采集并推流直播的示例 Demo。
