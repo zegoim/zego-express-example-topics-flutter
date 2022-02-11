@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:typed_data';
 
 import 'package:zego_express_engine/zego_express_engine.dart';
 
@@ -23,8 +27,8 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
   bool _isPlaying = false;
 
   int _playViewID = -1;
-  Widget _playViewWidget;
-  ZegoCanvas _playCanvas;
+  Widget? _playViewWidget;
+  late ZegoCanvas _playCanvas;
 
   int _playWidth = 0;
   int _playHeight = 0;
@@ -41,6 +45,8 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
   String _videoCodecID = '';
   String _networkQuality = '';
 
+  String? _appDocumentsPath;
+
   bool _isUseSpeaker = true;
 
   TextEditingController _controller = new TextEditingController();
@@ -55,6 +61,12 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
 
     setPlayerCallback();
 
+    if (Platform.isAndroid)
+    {
+      getExternalStorageDirectories(type: StorageDirectory.pictures).then((dir) => _appDocumentsPath = dir?.first.path);
+    } else {
+      getApplicationDocumentsDirectory().then((dir) => _appDocumentsPath = dir.path);
+    }
   }
 
   void setPlayerCallback() {
@@ -121,6 +133,22 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
         _playHeight = height;
       });
     };
+
+    ZegoExpressEngine.onPlayerRecvVideoFirstFrame = (String streamID) {
+      print('🚩 [onPlayerRecvVideoFirstFrame] streamID: $streamID');
+    };
+
+    ZegoExpressEngine.onPlayerRenderVideoFirstFrame = (String streamID) {
+      print('🚩 [onPlayerRenderVideoFirstFrame] streamID: $streamID');
+    };
+
+    ZegoExpressEngine.onPlayerRecvSEI = (String streamID, Uint8List data) {
+      print('🚩 [onPlayerRecvSEI] streamID: $streamID, data length: ${data.length}');
+    };
+
+    ZegoExpressEngine.onPlayerMediaEvent = (String streamID, ZegoPlayerMediaEvent event) {
+      print('🚩 [onPlayerMediaEvent] streamID: $streamID, event: $event');
+    };
   }
 
   @override
@@ -136,6 +164,10 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
     ZegoExpressEngine.onPlayerStateUpdate = null;
     ZegoExpressEngine.onPlayerQualityUpdate = null;
     ZegoExpressEngine.onPlayerVideoSizeChanged = null;
+    ZegoExpressEngine.onPlayerRecvVideoFirstFrame = null;
+    ZegoExpressEngine.onPlayerRenderVideoFirstFrame = null;
+    ZegoExpressEngine.onPlayerRecvSEI = null;
+    ZegoExpressEngine.onPlayerMediaEvent = null;
 
     if (ZegoConfig.instance.enablePlatformView) {
       // Destroy play platform view
@@ -208,7 +240,8 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
   void onSnapshotButtonClicked() {
     ZegoExpressEngine.instance.takePlayStreamSnapshot(_controller.text.trim()).then((result) {
       print('[takePublishStreamSnapshot], errorCode: ${result.errorCode}, is null image?: ${result.image != null ? "false" : "true"}');
-      ZegoUtils.showImage(context, result.image);
+      String path = _appDocumentsPath != null? _appDocumentsPath! + '/' + 'tmp_snapshot_${DateTime.now()}.png': '';
+      ZegoUtils.showImage(context, result.image, path: path);
     });
   }
 
@@ -420,7 +453,7 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(title: Text(_title)),
         body: Stack(
           children: <Widget>[

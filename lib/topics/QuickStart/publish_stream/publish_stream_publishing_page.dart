@@ -1,10 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:zego_express_engine/zego_express_engine.dart';
+import 'package:zego_express_example_topics_flutter/topics/QuickStart/publish_stream/publish_stream_settings_page.dart';
 
 import 'package:zego_express_example_topics_flutter/utils/zego_config.dart';
-import 'package:zego_express_example_topics_flutter/topics/publish_stream/publish_stream_settings_page.dart';
 import 'package:zego_express_example_topics_flutter/utils/zego_utils.dart';
 
 class PublishStreamPublishingPage extends StatefulWidget {
@@ -24,8 +27,8 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
   bool _isPublishing = false;
 
   int _previewViewID = -1;
-  Widget _previewViewWidget;
-  ZegoCanvas _previewCanvas;
+  Widget? _previewViewWidget;
+  late ZegoCanvas _previewCanvas;
 
   int _publishWidth = 0;
   int _publishHeight = 0;
@@ -43,6 +46,8 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
   bool _isUseFrontCamera = true;
   bool _isEnableCamera = true;
   bool _isEnableWatermark = false;
+
+  String? _appDocumentsPath;
 
   TextEditingController _controller = new TextEditingController();
 
@@ -86,12 +91,20 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
         startPreview(textureID);
       });
     }
+
+    if (Platform.isAndroid)
+    {
+      getExternalStorageDirectories(type: StorageDirectory.pictures).then((dir) => _appDocumentsPath = dir?.first.path);
+    } else {
+      getApplicationDocumentsDirectory().then((dir) => _appDocumentsPath = dir.path);
+    }
   }
 
   void setPublisherCallback() {
 
     // Set the publisher state callback
     ZegoExpressEngine.onPublisherStateUpdate = (String streamID, ZegoPublisherState state, int errorCode, Map<String, dynamic> extendedData) {
+      print('🚩 [onPublisherStateUpdate] streamID: $streamID, state: $state, error: $errorCode, extendedData: $extendedData');
 
       if (errorCode == 0) {
         setState(() {
@@ -103,7 +116,7 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
         ZegoConfig.instance.saveConfig();
 
       } else {
-        print('Publish error: $errorCode');
+        print('🚩 [onPublisherStateUpdate] Publish error: $errorCode');
       }
     };
 
@@ -144,11 +157,25 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
 
     // Set the publisher video size changed callback
     ZegoExpressEngine.onPublisherVideoSizeChanged = (int width, int height, ZegoPublishChannel channel) {
+      print('🚩 [onPublisherVideoSizeChanged] width: $width, height: $height, channel: $channel');
       setState(() {
         _publishWidth = width;
         _publishHeight = height;
       });
     };
+
+    ZegoExpressEngine.onPublisherCapturedAudioFirstFrame = () {
+      print('🚩 [onPublisherCapturedAudioFirstFrame]');
+    };
+
+    ZegoExpressEngine.onPublisherCapturedVideoFirstFrame = (ZegoPublishChannel channel) {
+      print('🚩 [onPublisherCapturedVideoFirstFrame] channel: $channel');
+    };
+
+    ZegoExpressEngine.onPublisherRelayCDNStateUpdate = (String streamID, List<ZegoStreamRelayCDNInfo> infoList) {
+      print('🚩 [onPublisherRelayCDNStateUpdate] streamID: $streamID, infoList: $infoList');
+    };
+
   }
 
   void startPreview(int viewID) {
@@ -177,6 +204,9 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
     ZegoExpressEngine.onPublisherStateUpdate = null;
     ZegoExpressEngine.onPublisherQualityUpdate = null;
     ZegoExpressEngine.onPublisherVideoSizeChanged = null;
+    ZegoExpressEngine.onPublisherCapturedAudioFirstFrame = null;
+    ZegoExpressEngine.onPublisherCapturedVideoFirstFrame = null;
+    ZegoExpressEngine.onPublisherRelayCDNStateUpdate = null;
 
     if (ZegoConfig.instance.enablePlatformView) {
       // Destroy preview platform view
@@ -223,7 +253,8 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
   void onSnapshotButtonClicked() {
     ZegoExpressEngine.instance.takePublishStreamSnapshot().then((result) {
       print('[takePublishStreamSnapshot], errorCode: ${result.errorCode}, is null image?: ${result.image != null ? "false" : "true"}');
-      ZegoUtils.showImage(context, result.image);
+      String path = _appDocumentsPath != null? _appDocumentsPath! + '/' + 'tmp_snapshot_${DateTime.now()}.png': '';
+      ZegoUtils.showImage(context, result.image, path:path);
     });
   }
 
@@ -459,7 +490,7 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(title: Text(_title)),
         floatingActionButton: CupertinoButton(
             padding: const EdgeInsets.all(0.0),

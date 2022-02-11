@@ -10,9 +10,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:zego_express_engine/zego_express_engine.dart';
+import 'package:zego_express_example_topics_flutter/topics/BestPractices/video_talk/video_talk_view_object.dart';
 
 import 'package:zego_express_example_topics_flutter/utils/zego_config.dart';
-import 'package:zego_express_example_topics_flutter/topics/video_talk/video_talk_view_object.dart';
 
 class VideoTalkPage extends StatefulWidget {
   @override
@@ -27,9 +27,9 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
 
   ZegoRoomState _roomState = ZegoRoomState.Disconnected;
 
-  List<VideoTalkViewObject> _viewObjectList = List();
+  List<VideoTalkViewObject> _viewObjectList = [];
 
-  VideoTalkViewObject _localUserViewObject;
+  late VideoTalkViewObject _localUserViewObject;
 
   bool _isEnableCamera = true;
   set isEnableCamera(bool value) {
@@ -73,7 +73,12 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
 
     // Create ZegoExpressEngine
     print("🚀 Create ZegoExpressEngine");
-    await ZegoExpressEngine.createEngine(ZegoConfig.instance.appID, ZegoConfig.instance.appSign, ZegoConfig.instance.isTestEnv, ZegoScenario.Communication, enablePlatformView: true);
+    ZegoEngineProfile profile = ZegoEngineProfile(
+      ZegoConfig.instance.appID, 
+      ZegoConfig.instance.appSign, 
+      ZegoScenario.Communication,
+      enablePlatformView: true);
+    await ZegoExpressEngine.createEngineWithProfile(profile);
 
     // Login Room
     print("🚪 Login room, roomID: $_roomID");
@@ -222,7 +227,7 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
               crossAxisSpacing: 5.0,
               childAspectRatio: 3.0/4.0,
             ),
-            children: _viewObjectList.map((e) => e.view).toList(),
+            children: _viewObjectList.map((e) => e.view!).toList(),
             padding: EdgeInsets.all(5.0),
           ),
         ),

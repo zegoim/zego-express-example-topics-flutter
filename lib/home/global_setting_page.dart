@@ -25,7 +25,7 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
   final TextEditingController _appIDEdController = new TextEditingController();
   final TextEditingController _appSignEdController = new TextEditingController();
 
-  String _version;
+  String _version = '';
 
   bool _isTestEnv = true;
   ZegoScenario _scenario = ZegoScenario.General;
@@ -68,8 +68,8 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
     setState(() => _isMicrophonePermissionGranted = microphoneStatus.isGranted);
   }
 
-  Future<bool> _onWillPop() {
-    return showDialog(context: context, builder: (BuildContext context) {
+  Future<bool?> _onWillPop() {
+    return showDialog<bool>(context: context, builder: (BuildContext context) {
       return AlertDialog(
         title: Text('Do you need to save the settings before exiting?'),
         actions: <Widget>[
@@ -101,7 +101,7 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
     //   return;
     // }
     //
-    int appID = int.tryParse(strAppID);
+    int appID = int.tryParse(strAppID)?? 0;
     // if (appID == null) {
     //   ZegoUtils.showAlert(context, 'AppID is invalid, should be int');
     //   return;
@@ -139,7 +139,9 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
       ),
       body: SafeArea(
         child: WillPopScope(
-          onWillPop: _onWillPop,
+          onWillPop: () async {
+            return await _onWillPop()?? false;
+          } ,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
@@ -217,7 +219,7 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
           children: <Widget>[
             Text('User ID: '),
             Padding(padding: const EdgeInsets.only(left: 10.0)),
-            Text(ZegoConfig.instance.userID??'unknown'),
+            Text(ZegoConfig.instance.userID),
           ],
         ),
         Padding(
@@ -227,7 +229,7 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
           children: <Widget>[
             Text('User Name: '),
             Padding(padding: const EdgeInsets.only(top: 10.0)),
-            Text(ZegoConfig.instance.userName??'unknown'),
+            Text(ZegoConfig.instance.userName),
           ],
         ),
       ]
@@ -290,8 +292,8 @@ class _GlobalSettingPageState extends State<GlobalSettingPage> {
   }
 
   Widget selectEnvironmentWidget() {
-    void onEnvironmentChanged(int value) {
-      setState(() => this._isTestEnv = value > 0 ? true : false);
+    void onEnvironmentChanged(int? value) {
+      setState(() => this._isTestEnv = value != null && value > 0 ? true : false);
     };
 
     return Column(

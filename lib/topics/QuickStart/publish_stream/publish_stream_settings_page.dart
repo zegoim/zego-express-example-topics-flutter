@@ -13,10 +13,10 @@ class PublishStreamSettingsPage extends StatefulWidget {
 
 class _PublishStreamSettingsPageState extends State<PublishStreamSettingsPage> {
 
-  bool _isPreviewMirror;
-  bool _isPublishMirror;
+  late bool _isPreviewMirror;
+  late bool _isPublishMirror;
 
-  bool _enableHardwareEncoder;
+  late bool _enableHardwareEncoder;
 
 
   @override

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:zego_express_engine/zego_express_engine.dart';
+import 'package:zego_express_example_topics_flutter/topics/QuickStart/play_stream/play_stream_page.dart';
 
 import 'package:zego_express_example_topics_flutter/utils/zego_config.dart';
-import 'package:zego_express_example_topics_flutter/topics/play_stream/play_stream_page.dart';
 
 class PlayStreamLoginPage extends StatefulWidget {
   @override
@@ -36,13 +36,12 @@ class _PlayStreamLoginPageState extends State<PlayStreamLoginPage> {
 
   // Step1: Create ZegoExpressEngine
   Future<void> _createEngine() async {
-    int appID = ZegoConfig.instance.appID;
-    String appSign = ZegoConfig.instance.appSign;
-    bool isTestEnv = ZegoConfig.instance.isTestEnv;
-    ZegoScenario scenario = ZegoConfig.instance.scenario;
-    bool enablePlatformView = ZegoConfig.instance.enablePlatformView;
-
-    await ZegoExpressEngine.createEngine(appID, appSign, isTestEnv, scenario, enablePlatformView: enablePlatformView);
+    ZegoEngineProfile profile = ZegoEngineProfile(
+      ZegoConfig.instance.appID, 
+      ZegoConfig.instance.appSign, 
+      ZegoConfig.instance.scenario,
+      enablePlatformView: ZegoConfig.instance.enablePlatformView);
+    await ZegoExpressEngine.createEngineWithProfile(profile);
   }
 
   // Step2 LoginRoom

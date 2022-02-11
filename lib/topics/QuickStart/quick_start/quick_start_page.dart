@@ -22,10 +22,10 @@ class _QuickStartPageState extends State<QuickStartPage> {
 
   final String _roomID = 'QuickStartRoom-1';
 
-  int _previewViewID;
-  int _playViewID;
-  Widget _previewViewWidget;
-  Widget _playViewWidget;
+  late int _previewViewID;
+  late int _playViewID;
+  Widget? _previewViewWidget;
+  Widget? _playViewWidget;
   GlobalKey _playViewContainerKey = GlobalKey();
   GlobalKey _previewViewContainerKey = GlobalKey();
   static const double viewRatio = 3.0/4.0;
@@ -65,7 +65,12 @@ class _QuickStartPageState extends State<QuickStartPage> {
   // MARK: - Step 1: CreateEngine
 
   void createEngine() {
-    ZegoExpressEngine.createEngine(ZegoConfig.instance.appID, ZegoConfig.instance.appSign, ZegoConfig.instance.isTestEnv, ZegoConfig.instance.scenario, enablePlatformView: ZegoConfig.instance.enablePlatformView);
+    ZegoEngineProfile profile = ZegoEngineProfile(
+      ZegoConfig.instance.appID, 
+      ZegoConfig.instance.appSign, 
+      ZegoConfig.instance.scenario,
+      enablePlatformView: ZegoConfig.instance.enablePlatformView);
+    ZegoExpressEngine.createEngineWithProfile(profile);
 
     // Notify View that engine state changed
     setState(() => _isEngineActive = true);
@@ -413,7 +418,7 @@ class _QuickStartPageState extends State<QuickStartPage> {
               ),
               onPressed: _publisherState == ZegoPublisherState.NoPublish ? () {
                 double pixelRatio = MediaQuery.of(context).devicePixelRatio;
-                Size widgetSize = _previewViewContainerKey.currentContext.size;
+                Size widgetSize = _previewViewContainerKey.currentContext?.size ?? Size(0, 0);
                 startPublishingStream(_publishingStreamIDController.text.trim(), width: widgetSize.width * pixelRatio, height: widgetSize.height * pixelRatio);
               } : () {
                 stopPublishingStream();
@@ -460,7 +465,7 @@ class _QuickStartPageState extends State<QuickStartPage> {
               ),
               onPressed: _playerState == ZegoPlayerState.NoPlay ? () {
                 double pixelRatio = MediaQuery.of(context).devicePixelRatio;
-                Size widgetSize = _playViewContainerKey.currentContext.size;
+                Size widgetSize = _playViewContainerKey.currentContext?.size ?? Size(0, 0);
                 startPlayingStream(_playingStreamIDController.text.trim(), width: widgetSize.width * pixelRatio, height: widgetSize.height * pixelRatio);
               } : () {
                 stopPlayingStream(_playingStreamIDController.text.trim());

@@ -14,8 +14,8 @@ class VideoTalkViewObject {
   final bool isLocal;
   final String streamID;
 
-  int viewID;
-  Widget view;
+  late int viewID;
+  Widget? view;
 
   VideoTalkViewObject(this.isLocal, this.streamID);
 
