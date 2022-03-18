@@ -86,10 +86,10 @@ class _CommonVideoConfigState extends State<CommonVideoConfigPage> with WidgetsB
   void didChangeMetrics() {
     super.didChangeMetrics();
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      // ios时，数字键盘上面没有done键，无法触发TextField的onEditingComplete 
-      // 通过监听键盘的隐藏来设置视频的配置参数
+      // In iOS, there is no done key on the numeric keyboard, and the onEditingComplete of TextField cannot be triggered
+      // Set video configuration parameters by listening for keyboard hiding
       if(MediaQuery.of(context).viewInsets.bottom==0){
-            //关闭键盘
+          // close the keyboard
           setVideoConfig();
       }
     });
@@ -522,7 +522,6 @@ class _CommonVideoConfigState extends State<CommonVideoConfigPage> with WidgetsB
   void createEngine() {
     ZegoEngineProfile profile = ZegoEngineProfile(
       ZegoConfig.instance.appID, 
-      ZegoConfig.instance.appSign, 
       ZegoConfig.instance.scenario,
       enablePlatformView: ZegoConfig.instance.enablePlatformView);
     ZegoExpressEngine.createEngineWithProfile(profile).then((value) => startPreview());
@@ -556,7 +555,7 @@ class _CommonVideoConfigState extends State<CommonVideoConfigPage> with WidgetsB
     ZegoUser user = ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName);
 
     // Login Room
-    ZegoExpressEngine.instance.loginRoom(_roomID, user);
+    ZegoExpressEngine.instance.loginRoom(_roomID, user, config: ZegoRoomConfig(0, true, ZegoConfig.instance.token));
 
     print('🚪 Start login room, roomID: $_roomID');
   }

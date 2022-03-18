@@ -75,14 +75,13 @@ class _VideoTalkPageState extends State<VideoTalkPage> {
     print("🚀 Create ZegoExpressEngine");
     ZegoEngineProfile profile = ZegoEngineProfile(
       ZegoConfig.instance.appID, 
-      ZegoConfig.instance.appSign, 
       ZegoScenario.Communication,
       enablePlatformView: true);
     await ZegoExpressEngine.createEngineWithProfile(profile);
 
     // Login Room
     print("🚪 Login room, roomID: $_roomID");
-    await ZegoExpressEngine.instance.loginRoom(_roomID, ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName));
+    await ZegoExpressEngine.instance.loginRoom(_roomID, ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName), config: ZegoRoomConfig(0, true, ZegoConfig.instance.token));
 
     // Set the publish video configuration
     print("⚙️ Set video config: 540p preset");

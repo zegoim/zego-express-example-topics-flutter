@@ -92,7 +92,7 @@ class _StreamMonitoringPageState extends State<StreamMonitoringPage> {
         onPublisherQualityUpdate: onPublisherQualityUpdate,
         );
     _zegoDelegate.createEngine(enablePlatformView: true).then((value) {
-      _zegoDelegate.loginRoom(_roomID, ZegoConfig.instance.userID);
+      _zegoDelegate.loginRoom(_roomID);
     });
 
   }
@@ -228,7 +228,7 @@ class _StreamMonitoringPageState extends State<StreamMonitoringPage> {
     ));
   }
 
-  // 预览界面上面的按钮和标题
+  // Buttons and titles on the preview widget
   Widget preWidgetTopWidget() {
     return Padding(padding: EdgeInsets.only(bottom: 10),
     child: Column(
@@ -253,7 +253,7 @@ class _StreamMonitoringPageState extends State<StreamMonitoringPage> {
     ));
   }
 
-  // 拉流界面上面的按钮和标题
+  // Buttons and titles on the play widget
   Widget playWidgetTopWidget() {
     return Padding(padding: EdgeInsets.only(bottom: 10),child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,7 +468,6 @@ class ZegoDelegate {
     print("enablePlatformView :$enablePlatformView");
     ZegoEngineProfile profile = ZegoEngineProfile(
       ZegoConfig.instance.appID, 
-      ZegoConfig.instance.appSign, 
       ZegoConfig.instance.scenario,
       enablePlatformView: enablePlatformView);
     await ZegoExpressEngine.createEngineWithProfile(profile);
@@ -498,14 +497,16 @@ class ZegoDelegate {
     return result;
   }
 
-  Future<void> loginRoom(String roomID, String userID, {String? userName}) async {
-    if (roomID.isNotEmpty && userID.isNotEmpty)
+  Future<void> loginRoom(String roomID) async {
+    if (roomID.isNotEmpty )
     {
-         // Instantiate a ZegoUser object
-      ZegoUser user = ZegoUser(userID, userName?? userID);
+      // Instantiate a ZegoUser object
+      ZegoUser user = ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName.isEmpty? ZegoConfig.instance.userID: ZegoConfig.instance.userName);
 
+      ZegoRoomConfig roomConfig = ZegoRoomConfig.defaultConfig();
+      roomConfig.token = ZegoConfig.instance.token;
       // Login Room
-      await ZegoExpressEngine.instance.loginRoom(roomID, user);
+      await ZegoExpressEngine.instance.loginRoom(roomID, user, config: roomConfig);
 
       print('🚪 Start login room, roomID: $roomID');
     }
@@ -570,7 +571,7 @@ class ZegoDelegate {
       if (needShow) {
         ZegoExpressEngine.instance.startPlayingStream(streamID, 
           canvas: ZegoCanvas(viewID, backgroundColor: 0xffffff), 
-          config: ZegoPlayerConfig(ZegoStreamResourceMode.Default, cdnConfig: cdnConfig, roomID: roomID));
+          config: ZegoPlayerConfig(ZegoStreamResourceMode.Default, ZegoVideoCodecID.Default, cdnConfig: cdnConfig, roomID: roomID));
       }
       else{
         ZegoExpressEngine.instance.startPlayingStream(streamID,);

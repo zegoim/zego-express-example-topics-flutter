@@ -66,7 +66,7 @@ class _EncodingAndDecodingPageState extends State<EncodingAndDecodingPage> {
 
     _zegoDelegate.setZegoEventCallback(onRoomStateUpdate: onRoomStateUpdate, onPublisherStateUpdate: onPublisherStateUpdate, onPlayerStateUpdate: onPlayerStateUpdate);
     _zegoDelegate.createEngine(enablePlatformView: true).then((value) {
-      _zegoDelegate.loginRoom(_roomID, ZegoConfig.instance.userID);
+      _zegoDelegate.loginRoom(_roomID);
     });
   }
 
@@ -444,7 +444,6 @@ class ZegoDelegate {
     print("enablePlatformView :$enablePlatformView");
     ZegoEngineProfile profile = ZegoEngineProfile(
       ZegoConfig.instance.appID, 
-      ZegoConfig.instance.appSign, 
       ZegoConfig.instance.scenario,
       enablePlatformView: enablePlatformView);
     await ZegoExpressEngine.createEngineWithProfile(profile);
@@ -474,14 +473,16 @@ class ZegoDelegate {
     return result;
   }
 
-  Future<void> loginRoom(String roomID, String userID, {String? userName}) async {
-    if (roomID.isNotEmpty && userID.isNotEmpty)
+  Future<void> loginRoom(String roomID) async {
+    if (roomID.isNotEmpty )
     {
-         // Instantiate a ZegoUser object
-      ZegoUser user = ZegoUser(userID, userName?? userID);
+      // Instantiate a ZegoUser object
+      ZegoUser user = ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName.isEmpty? ZegoConfig.instance.userID: ZegoConfig.instance.userName);
 
+      ZegoRoomConfig roomConfig = ZegoRoomConfig.defaultConfig();
+      roomConfig.token = ZegoConfig.instance.token;
       // Login Room
-      await ZegoExpressEngine.instance.loginRoom(roomID, user);
+      await ZegoExpressEngine.instance.loginRoom(roomID, user, config: roomConfig);
 
       print('🚪 Start login room, roomID: $roomID');
     }
@@ -546,7 +547,7 @@ class ZegoDelegate {
       if (needShow) {
         ZegoExpressEngine.instance.startPlayingStream(streamID, 
           canvas: ZegoCanvas(viewID, backgroundColor: 0xffffff), 
-          config: ZegoPlayerConfig(ZegoStreamResourceMode.Default, cdnConfig: cdnConfig, roomID: roomID));
+          config: ZegoPlayerConfig(ZegoStreamResourceMode.Default, ZegoVideoCodecID.Default, cdnConfig: cdnConfig, roomID: roomID));
       }
       else{
         ZegoExpressEngine.instance.startPlayingStream(streamID,);

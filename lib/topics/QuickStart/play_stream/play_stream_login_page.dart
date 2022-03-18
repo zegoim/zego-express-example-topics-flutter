@@ -38,7 +38,6 @@ class _PlayStreamLoginPageState extends State<PlayStreamLoginPage> {
   Future<void> _createEngine() async {
     ZegoEngineProfile profile = ZegoEngineProfile(
       ZegoConfig.instance.appID, 
-      ZegoConfig.instance.appSign, 
       ZegoConfig.instance.scenario,
       enablePlatformView: ZegoConfig.instance.enablePlatformView);
     await ZegoExpressEngine.createEngineWithProfile(profile);
@@ -50,10 +49,11 @@ class _PlayStreamLoginPageState extends State<PlayStreamLoginPage> {
 
     ZegoUser user = ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName);
 
-    await ZegoExpressEngine.instance.loginRoom(roomID, user);
+    ZegoRoomConfig roomConfig = ZegoRoomConfig.defaultConfig();
+    roomConfig.token = ZegoConfig.instance.token;
+    await ZegoExpressEngine.instance.loginRoom(roomID, user, config: roomConfig);
 
     ZegoConfig.instance.roomID = roomID;
-    ZegoConfig.instance.saveConfig();
 
     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
 

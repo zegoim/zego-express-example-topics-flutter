@@ -48,10 +48,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    // 限制屏幕垂直方向
+    // Limit the vertical orientation of the screen
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    // Load config
-    ZegoConfig.instance.init();
+
     Permission.camera.request().then((value) async{ 
       await Permission.microphone.request();
 
@@ -149,7 +148,7 @@ class TopicWidget extends ListTile {
     title: Text(title),
     trailing: Icon(Icons.keyboard_arrow_right),
     onTap: () {
-      if (ZegoConfig.instance.appID > 0 && ZegoConfig.instance.appSign.isNotEmpty) {
+      if (ZegoConfig.instance.appID > 0 && ZegoConfig.instance.token.isNotEmpty) {
         Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
           return targetPage;
         }));

@@ -15,7 +15,7 @@ Learn more about the solution: [https://www.zego.im](https://www.zego.im)
 
 ## Running the sample code
 
-The AppID and AppSign required for SDK initialization are missing from the downloaded Demo source. Please refer to [Instructions for getting AppID and AppSign](https://doc.zego.im/API/HideDoc/GetExpressAppIDGuide/GetAppIDGuideline.html) to get AppID and AppSign.
+The AppID and Token required for SDK initialization are missing from the downloaded Demo source. Please refer to [Instructions for getting AppID and Token](https://console.zego.im/dashboard) to get AppID and Token.
 
 ## Related demo
 

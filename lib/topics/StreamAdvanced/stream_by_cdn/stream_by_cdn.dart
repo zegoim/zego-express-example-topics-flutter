@@ -55,7 +55,7 @@ class _AddStreamToCDNPageState extends State<AddStreamToCDNPage> {
         onPlayerStateUpdate:onPlayerStateUpdate,
         );
     _zegoDelegate.createEngine(enablePlatformView: true).then((value) {
-      _zegoDelegate.loginRoom(_roomID, ZegoConfig.instance.userID);
+      _zegoDelegate.loginRoom(_roomID);
     });
 
   }
@@ -113,9 +113,6 @@ class _AddStreamToCDNPageState extends State<AddStreamToCDNPage> {
             _playViewWidget = widget;
           });
         });
-      }
-      else {
-        // Todo 提示输入url
       }
       
     }
@@ -274,7 +271,7 @@ class _AddStreamToCDNPageState extends State<AddStreamToCDNPage> {
     );
   }
 
-  // 预览界面上面的按钮和标题
+  // Buttons and titles on the preview widget
   Widget preWidgetTopWidget() {
     return Padding(padding: EdgeInsets.only(top: 10),
       child: Text('Local Preview View', 
@@ -282,7 +279,7 @@ class _AddStreamToCDNPageState extends State<AddStreamToCDNPage> {
       );
   }
 
-  // 拉流界面上面的按钮和标题
+  // Buttons and titles on the play widget
   Widget playWidgetTopWidget() {
     return Padding(padding: EdgeInsets.only(top: 10),
       child: Text('Remote Play View', 
@@ -344,7 +341,7 @@ class _AddStreamToCDNPageState extends State<AddStreamToCDNPage> {
                   onPlayerStateUpdate:onPlayerStateUpdate,
                   );
               _zegoDelegate.createEngine(enablePlatformView: true).then((value) {
-                _zegoDelegate.loginRoom(_roomID, ZegoConfig.instance.userID);
+                _zegoDelegate.loginRoom(_roomID);
               });
               setState(() {
                 _publisherState = ZegoPublisherState.NoPublish;

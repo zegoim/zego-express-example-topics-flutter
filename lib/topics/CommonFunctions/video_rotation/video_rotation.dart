@@ -54,7 +54,6 @@ class _VideoRotationPageState extends State<VideoRotationPage> with WidgetsBindi
   String _title = '';
   late TextEditingController _streamIDController;
   late TextEditingController _roomIDController;
-  late TextEditingController _userIDController;
   late String _rotationMode;
   late ZegoPublisherState _publisherState;
   late ZegoPlayerState _playerState; 
@@ -101,8 +100,6 @@ class _VideoRotationPageState extends State<VideoRotationPage> with WidgetsBindi
     _streamIDController.text = "123654";
     _roomIDController = TextEditingController();
     _roomIDController.text = "123654";
-    _userIDController = TextEditingController();
-    _userIDController.text = ZegoConfig.instance.userID;
     _publisherState = ZegoPublisherState.NoPublish;
     _playerState = ZegoPlayerState.NoPlay;
 
@@ -119,8 +116,8 @@ class _VideoRotationPageState extends State<VideoRotationPage> with WidgetsBindi
   void didChangeMetrics() {
     super.didChangeMetrics();
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      // ios时，数字键盘上面没有done键，无法触发TextField的onEditingComplete 
-      // 通过监听键盘的隐藏来设置视频的配置参数
+      // In iOS, there is no done key on the numeric keyboard, and the onEditingComplete of TextField cannot be triggered 
+      // Set video configuration parameters by listening for keyboard hiding
       if (_rotationMode == "Auto") 
       {
         print('didChangeMetrics orientation: ${MediaQuery.of(context).orientation}');
@@ -278,20 +275,8 @@ class _VideoRotationPageState extends State<VideoRotationPage> with WidgetsBindi
               ),
             )),
         Expanded(child: Container()),
-        Padding(padding: EdgeInsets.only(right: 10), child:Text('UserID')),
-        SizedBox(
-              width: MediaQuery.of(context).size.width *0.3,
-              child:TextField(
-              controller: _userIDController,
-              onEditingComplete: () {            
-              },
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.all(10.0),
-                isDense: true,
-                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xff0e88eb)))
-              ),
-            )),
+        Padding(padding: EdgeInsets.only(right: 10), child:Text('UserID: ')),
+        Text('${ZegoConfig.instance.userID}')
       ]
     );
   }
@@ -438,7 +423,6 @@ class _VideoRotationPageState extends State<VideoRotationPage> with WidgetsBindi
   void createEngine() {
     ZegoEngineProfile profile = ZegoEngineProfile(
       ZegoConfig.instance.appID, 
-      ZegoConfig.instance.appSign, 
       ZegoConfig.instance.scenario,
       enablePlatformView: ZegoConfig.instance.enablePlatformView);
     ZegoExpressEngine.createEngineWithProfile(profile);
@@ -497,16 +481,14 @@ class _VideoRotationPageState extends State<VideoRotationPage> with WidgetsBindi
   }
 
   Future<void> loginRoom() async {
-    if (_userIDController.text.isNotEmpty && _roomIDController.text.isNotEmpty)
-    {
-         // Instantiate a ZegoUser object
-      ZegoUser user = ZegoUser(_userIDController.text, _userIDController.text);
+    ZegoUser user = ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName.isEmpty? ZegoConfig.instance.userID: ZegoConfig.instance.userName);
 
-      // Login Room
-      await ZegoExpressEngine.instance.loginRoom(_roomIDController.text, user);
+    ZegoRoomConfig roomConfig = ZegoRoomConfig.defaultConfig();
+    roomConfig.token = ZegoConfig.instance.token;
+    // Login Room
+    await ZegoExpressEngine.instance.loginRoom(_roomIDController.text, user, config: roomConfig);
 
-      print('🚪 Start login room, roomID: ${_roomIDController.text}');
-    }
+    print('🚪 Start login room, roomID: ${_roomIDController.text}');
   }
 
   void logoutRoom() async {

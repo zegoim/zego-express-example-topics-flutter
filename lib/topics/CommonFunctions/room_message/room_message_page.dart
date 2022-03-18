@@ -67,7 +67,6 @@ class _RoomMessagePageState extends State<RoomMessagePage> {
   void createEngine() {
     ZegoEngineProfile profile = ZegoEngineProfile(
       ZegoConfig.instance.appID, 
-      ZegoConfig.instance.appSign, 
       ZegoConfig.instance.scenario,
       enablePlatformView: ZegoConfig.instance.enablePlatformView);
     ZegoExpressEngine.createEngineWithProfile(profile);
@@ -83,8 +82,10 @@ class _RoomMessagePageState extends State<RoomMessagePage> {
     // Instantiate a ZegoUser object
     ZegoUser user = ZegoUser(ZegoConfig.instance.userID, ZegoConfig.instance.userName);
 
+    ZegoRoomConfig roomConfig = ZegoRoomConfig.defaultConfig();
+    roomConfig.token = ZegoConfig.instance.token;
     // Login Room
-    ZegoExpressEngine.instance.loginRoom(_roomID, user);
+    ZegoExpressEngine.instance.loginRoom(_roomID, user, config: roomConfig);
 
     print('🚪 Start login room, roomID: $_roomID');
   }
@@ -99,12 +100,6 @@ class _RoomMessagePageState extends State<RoomMessagePage> {
     ZegoExpressEngine.destroyEngine();
 
     print('🏳️ Destroy ZegoExpressEngine');
-
-    // Notify View that engine state changed
-    setState(() {
-      _isEngineActive = false;
-      _roomState = ZegoRoomState.Disconnected;
-    });
   }
 
   // MARK: - Event

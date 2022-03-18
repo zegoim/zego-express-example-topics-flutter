@@ -124,7 +124,7 @@ class _VoiceChangePageState extends State<VoiceChangePage> {
     _preDelayEnable = false;
     _stereoWidthEnable = false;
 
-    // 混响回声
+    // reverberation echo
     _echoParamEthereal = ZegoReverbEchoParam(0.8,1.0,7,[230,460,690,920,1150,1380,1610], [0.41,0.18,0.08,0.03,0.009,0.003,0.001]);
     _echoParamRobot = ZegoReverbEchoParam(0.8, 1.0, 7, [60,210,180,240,300,360,420], [0.51,0.26,0.12,0.05,0.02,0.009,0.001]);
     _echoParamNone = ZegoReverbEchoParam(1, 1.0, 0, [0,0,0,0,0,0,40], [0.0,0.0,0.0,0.0,0.0,0.0,0.0]);
@@ -138,7 +138,7 @@ class _VoiceChangePageState extends State<VoiceChangePage> {
 
     _zegoDelegate.setZegoEventCallback(onRoomStateUpdate: onRoomStateUpdate, onPublisherStateUpdate: onPublisherStateUpdate, onPlayerStateUpdate: onPlayerStateUpdate);
     _zegoDelegate.createEngine(enablePlatformView: true).then((value) async{
-      await _zegoDelegate.loginRoom(_roomID, ZegoConfig.instance.userID);
+      await _zegoDelegate.loginRoom(_roomID);
       _mediaPlayer = await _zegoDelegate.createMediaPlayer();
       _mediaPlayer?.enableRepeat(true);
       _mediaPlayer?.loadResource('https://storage.zego.im/demo/sample_astrix.mp3');
@@ -703,7 +703,7 @@ class _VoiceChangePageState extends State<VoiceChangePage> {
     );
   }
 
-  // 预览界面上面的按钮和标题
+  // Buttons and titles on the preview widget
   Widget preWidgetTopWidget() {
     return Padding(padding: EdgeInsets.only(bottom: 10),
     child: Column(
@@ -752,7 +752,7 @@ class _VoiceChangePageState extends State<VoiceChangePage> {
     ));
   }
 
-  // 拉流界面上面的按钮和标题
+  // Buttons and titles on the play widget
   Widget playWidgetTopWidget() {
     return Padding(padding: EdgeInsets.only(bottom: 10),child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -881,7 +881,6 @@ class ZegoDelegate {
     print("enablePlatformView :$enablePlatformView");
     ZegoEngineProfile profile = ZegoEngineProfile(
       ZegoConfig.instance.appID, 
-      ZegoConfig.instance.appSign, 
       ZegoConfig.instance.scenario,
       enablePlatformView: enablePlatformView);
     await ZegoExpressEngine.createEngineWithProfile(profile);
@@ -916,14 +915,17 @@ class ZegoDelegate {
     return ZegoExpressEngine.setRoomMode(mode);
   }
 
-  Future<void> loginRoom(String roomID, String userID, {String? userName}) async {
-    if (roomID.isNotEmpty && userID.isNotEmpty)
+  Future<void> loginRoom(String roomID) async {
+    if (roomID.isNotEmpty)
     {
          // Instantiate a ZegoUser object
-      ZegoUser user = ZegoUser(userID, userName?? userID);
+      ZegoUser user = ZegoUser( ZegoConfig.instance.userID,  ZegoConfig.instance.userName.isEmpty? ZegoConfig.instance.userID: ZegoConfig.instance.userName);
+
+      ZegoRoomConfig roomConfig = ZegoRoomConfig.defaultConfig();
+      roomConfig.token = ZegoConfig.instance.token;
 
       // Login Room
-      await ZegoExpressEngine.instance.loginRoom(roomID, user);
+      await ZegoExpressEngine.instance.loginRoom(roomID, user, config: roomConfig);
 
       print('🚪 Start login room, roomID: $roomID');
     }
@@ -988,7 +990,7 @@ class ZegoDelegate {
       if (needShow) {
         ZegoExpressEngine.instance.startPlayingStream(streamID, 
           canvas: ZegoCanvas(viewID, backgroundColor: 0xffffff), 
-          config: ZegoPlayerConfig(ZegoStreamResourceMode.Default, cdnConfig: cdnConfig, roomID: roomID));
+          config: ZegoPlayerConfig(ZegoStreamResourceMode.Default, ZegoVideoCodecID.Default, cdnConfig: cdnConfig, roomID: roomID));
       }
       else{
         ZegoExpressEngine.instance.startPlayingStream(streamID,);

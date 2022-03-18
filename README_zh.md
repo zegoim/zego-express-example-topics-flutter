@@ -15,7 +15,7 @@
 
 ## 运行示例代码
 
-下载的示例代码中缺少 SDK 初始化必须的 AppID 和 AppSign，请参考 [获取 AppID 和 AppSign 指引](https://doc.zego.im/API/HideDoc/GetExpressAppIDGuide/GetAppIDGuideline.html) 获取 AppID 和 AppSign。
+下载的示例代码中缺少 SDK 初始化必须的 AppID 和 Token，请参考 [获取 AppID 和 Token 指引](https://console.zego.im/dashboard) 获取 AppID 和 Token。
 
 ## 相关示例
 

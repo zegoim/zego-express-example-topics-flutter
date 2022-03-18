@@ -81,7 +81,6 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
         });
 
         ZegoConfig.instance.streamID = streamID;
-        ZegoConfig.instance.saveConfig();
 
       } else {
         print('Play error: $errorCode');

@@ -113,7 +113,6 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
         });
 
         ZegoConfig.instance.streamID = streamID;
-        ZegoConfig.instance.saveConfig();
 
       } else {
         print('🚩 [onPublisherStateUpdate] Publish error: $errorCode');
