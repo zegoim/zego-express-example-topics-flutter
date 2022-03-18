@@ -14,8 +14,9 @@ class PublishStreamPublishingPage extends StatefulWidget {
 
   final int screenWidthPx;
   final int screenHeightPx;
+  final String roomID;
 
-  PublishStreamPublishingPage(this.screenWidthPx, this.screenHeightPx);
+  PublishStreamPublishingPage(this.screenWidthPx, this.screenHeightPx, this.roomID);
 
   @override
   _PublishStreamPublishingPageState createState() => new _PublishStreamPublishingPageState();
@@ -54,10 +55,6 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
   @override
   void initState() {
     super.initState();
-
-    if (ZegoConfig.instance.streamID.isNotEmpty) {
-      _controller.text = ZegoConfig.instance.streamID;
-    }
 
     setPublisherCallback();
 
@@ -111,8 +108,6 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
           _isPublishing = true;
           _title = 'Publishing';
         });
-
-        ZegoConfig.instance.streamID = streamID;
 
       } else {
         print('🚩 [onPublisherStateUpdate] Publish error: $errorCode');
@@ -216,7 +211,7 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
     }
 
     // Logout room
-    ZegoExpressEngine.instance.logoutRoom(ZegoConfig.instance.roomID);
+    ZegoExpressEngine.instance.logoutRoom(widget.roomID);
   }
 
   void onPublishButtonPressed() {
@@ -353,7 +348,7 @@ class _PublishStreamPublishingPageState extends State<PublishStreamPublishingPag
           Column(
             children: [
               Row(children: <Widget>[
-                Text('RoomID: ${ZegoConfig.instance.roomID} |  StreamID: ${ZegoConfig.instance.streamID}',
+                Text('RoomID: ${widget.roomID} |  StreamID: ${_controller.text.trim()}',
                   style: TextStyle(color: Colors.white, fontSize: 9),
                 ),
               ]),

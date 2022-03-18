@@ -18,10 +18,6 @@ class _PlayStreamLoginPageState extends State<PlayStreamLoginPage> {
   @override
   void initState() {
     super.initState();
-
-    if(ZegoConfig.instance.roomID.isNotEmpty) {
-      _controller.text = ZegoConfig.instance.roomID;
-    }
   }
 
   @override
@@ -53,14 +49,12 @@ class _PlayStreamLoginPageState extends State<PlayStreamLoginPage> {
     roomConfig.token = ZegoConfig.instance.token;
     await ZegoExpressEngine.instance.loginRoom(roomID, user, config: roomConfig);
 
-    ZegoConfig.instance.roomID = roomID;
-
     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
 
       int screenWidthPx = MediaQuery.of(context).size.width.toInt() * MediaQuery.of(context).devicePixelRatio.toInt();
       int screenHeightPx = (MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - 56.0).toInt() * MediaQuery.of(context).devicePixelRatio.toInt();
 
-      return PlayStreamPage(screenWidthPx, screenHeightPx);
+      return PlayStreamPage(screenWidthPx, screenHeightPx, roomID);
 
     }));
 

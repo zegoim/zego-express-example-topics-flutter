@@ -13,22 +13,14 @@ class PublishStreamSettingsPage extends StatefulWidget {
 
 class _PublishStreamSettingsPageState extends State<PublishStreamSettingsPage> {
 
-  late bool _isPreviewMirror;
-  late bool _isPublishMirror;
-
-  late bool _enableHardwareEncoder;
-
+  static bool _isPreviewMirror = true;
+  static bool _isPublishMirror = false;
+  static bool _enableHardwareEncoder = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    _isPreviewMirror = ZegoConfig.instance.isPreviewMirror;
-    _isPublishMirror = ZegoConfig.instance.isPublishMirror;
-
-    _enableHardwareEncoder = ZegoConfig.instance.enableHardwareEncoder;
-
   }
 
   void checkMirrorMode() {
@@ -55,7 +47,6 @@ class _PublishStreamSettingsPageState extends State<PublishStreamSettingsPage> {
   void onPreviewMirrorValueChanged(bool value) {
     setState(() {
       _isPreviewMirror = value;
-      ZegoConfig.instance.isPreviewMirror = _isPreviewMirror;
       checkMirrorMode();
     });
   }
@@ -63,7 +54,6 @@ class _PublishStreamSettingsPageState extends State<PublishStreamSettingsPage> {
   void onPublishMirrorValueChanged(bool value) {
     setState(() {
       _isPublishMirror = value;
-      ZegoConfig.instance.isPublishMirror = _isPublishMirror;
       checkMirrorMode();
     });
   }
@@ -71,7 +61,6 @@ class _PublishStreamSettingsPageState extends State<PublishStreamSettingsPage> {
   void onEnableHardwareEncodeValueChanged(bool value) {
     setState(() {
       _enableHardwareEncoder = value;
-      ZegoConfig.instance.enableHardwareEncoder = _enableHardwareEncoder;
       ZegoExpressEngine.instance.enableHardwareEncoder(_enableHardwareEncoder);
     });
   }

@@ -14,8 +14,9 @@ class PlayStreamPage extends StatefulWidget {
 
   final int screenWidthPx;
   final int screenHeightPx;
+  final String roomID;
 
-  PlayStreamPage(this.screenWidthPx, this.screenHeightPx);
+  PlayStreamPage(this.screenWidthPx, this.screenHeightPx, this.roomID);
 
   @override
   _PlayStreamPageState createState() => new _PlayStreamPageState();
@@ -55,10 +56,6 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
   void initState() {
     super.initState();
 
-    if (ZegoConfig.instance.streamID.isNotEmpty) {
-      _controller.text = ZegoConfig.instance.streamID;
-    }
-
     setPlayerCallback();
 
     if (Platform.isAndroid)
@@ -79,8 +76,6 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
           _isPlaying = true;
           _title = 'Playing';
         });
-
-        ZegoConfig.instance.streamID = streamID;
 
       } else {
         print('Play error: $errorCode');
@@ -156,7 +151,7 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
 
     if (_isPlaying) {
       // Stop playing
-      ZegoExpressEngine.instance.stopPlayingStream(ZegoConfig.instance.streamID);
+      ZegoExpressEngine.instance.stopPlayingStream(_controller.text.trim());
     }
 
     // Unregister player callback
@@ -177,7 +172,7 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
     }
 
     // Logout room
-    ZegoExpressEngine.instance.logoutRoom(ZegoConfig.instance.roomID);
+    ZegoExpressEngine.instance.logoutRoom(widget.roomID);
   }
 
   void onPlayButtonPressed() {
@@ -312,14 +307,14 @@ class _PlayStreamPageState extends State<PlayStreamPage> {
           ),
           Row(
             children: <Widget>[
-              Text('RoomID: ${ZegoConfig.instance.roomID}',
+              Text('RoomID: ${widget.roomID}',
                 style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
           ),
           Row(
             children: <Widget>[
-              Text('StreamID: ${ZegoConfig.instance.streamID}',
+              Text('StreamID: ${_controller.text.trim()}',
                 style: TextStyle(color: Colors.white, fontSize: 9),
               ),
             ],
