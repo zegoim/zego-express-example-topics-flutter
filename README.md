@@ -1,21 +1,10 @@
 # Zego Express Example Topics Flutter
 
-[English](README.md) | [中文](README_zh.md)
+## ⚠️ This example demo has been migrated to
 
-Demonstrates how to use the [zego_express_engine]((https://pub.dev/packages/zego_express_engine)) plugin.
+- English [https://docs.zegocloud.com/article/1254](https://docs.zegocloud.com/article/1254)
 
-> Ref: zego_express_engine
->
-> - pub.dev: [https://pub.dev/packages/zego_express_engine](https://pub.dev/packages/zego_express_engine)
-> - Github: [https://github.com/zegoim/zego-express-flutter-sdk](https://github.com/zegoim/zego-express-flutter-sdk)
-
-ZegoExpressEngine Audio/Video Flutter SDK is a flutter plugin wrapper based on [ZegoExpressEngine](https://doc-en.zego.im/en/693.html) native Android / iOS SDK, providing live video and real-time audio/video services. It only needs 4 lines of code and can be easily accessed in 30 minutes.
-
-Learn more about the solution: [https://www.zego.im](https://www.zego.im)
-
-## Running the sample code
-
-The AppID and Token required for SDK initialization are missing from the downloaded Demo source. Please refer to [Instructions for getting AppID and Token](https://console.zego.im/dashboard) to get AppID and Token.
+- 中文 [https://doc-zh.zego.im/article/3130](https://doc-zh.zego.im/article/3130)
 
 ## Related demo
 
